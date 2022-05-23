@@ -7,39 +7,39 @@ namespace SimpleValueRange
     {
         public static Range<T> Create<T>(T min, T max) where T : IComparable<T>
         {
-            if (min != null && max != null && min.IsGreaterThan(max))
-            {
-                throw new ArgumentException("Min can't be greater that max");
-            }
-            
             return new Range<T>(min, max);
         }
 
         public static Range<T> Create<T>(T? min, T? max) where T : struct, IComparable<T>
         {
-            if (min != null && max != null && ((T)min).IsGreaterThan((T)max))
-            {
-                throw new ArgumentException("Min can't be greater that max");
-            }
-            
             var minOption = min ?? Option<T>.None;
             var maxOption = max ?? Option<T>.None;
 
             return new Range<T>(minOption, maxOption);
         }
-        
+
         private readonly Option<T> _minOption;
         private readonly Option<T> _maxOption;
 
         private Range(Option<T> min, Option<T> max)
         {
+            if (min.IsNone && max.IsNone)
+            {
+                throw new ArgumentException("Both values can't be optional");
+            }
+
+            if (min.IsSome && max.IsSome && ((T)min).IsGreaterThan((T)max))
+            {
+                throw new ArgumentException("Min can't be greater that max");
+            }
+
             _minOption = min;
             _maxOption = max;
         }
 
         public bool MinHasValue => _minOption.IsSome;
         public bool MaxHasValue => _maxOption.IsSome;
-        
+
         public bool TryGetMinValue(out T result)
         {
             return TryGetValue(_minOption, out result);

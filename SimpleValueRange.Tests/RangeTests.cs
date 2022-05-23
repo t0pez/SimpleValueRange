@@ -10,7 +10,21 @@ namespace SimpleValueRange.Tests
         [Theory]
         [InlineData(1, 3)]
         [InlineData(1, 4)]
-        public void RangeConstructor_CorrectValues_WorksFine(int min, int max)
+        public void RangeConstructor_HasNoOptionalValues_WorksFine(int min, int max)
+        {
+            var range = Range<int>.Create(min, max);
+
+            range.TryGetMinValue(out var minValue);
+            range.TryGetMaxValue(out var maxValue);
+
+            Assert.Equal(min, minValue);
+            Assert.Equal(max, maxValue);
+        }
+        
+        [Theory]
+        [InlineData(1, 1)]
+        [InlineData(4, 4)]
+        public void RangeConstructor_BothValuesAreEqual_WorksFine(int min, int max)
         {
             var range = Range<int>.Create(min, max);
 
@@ -70,8 +84,19 @@ namespace SimpleValueRange.Tests
         [InlineData(4, 1)]
         [InlineData(4, 2)]
         [InlineData(3, 2)]
-        public void RangeConstructor_MinGreaterThanMax_ThrowsException(int min, int max)
+        public void RangeConstructor_MinGreaterThanMax_ThrowsArgumentException(int min, int max)
         {
+            var constructorMethod = new Action(() => { Range<int>.Create(min, max); });
+
+            Assert.Throws<ArgumentException>(constructorMethod);
+        }
+        
+        [Fact]
+        public void RangeConstructor_BothValuesOptional_ThrowsArgumentException()
+        {
+            int? min = null;
+            int? max = null;
+            
             var constructorMethod = new Action(() => { Range<int>.Create(min, max); });
 
             Assert.Throws<ArgumentException>(constructorMethod);
