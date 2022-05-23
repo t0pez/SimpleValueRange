@@ -79,6 +79,18 @@ namespace SimpleValueRange.Tests
             Assert.Equal(max, maxValue);
         }
 
+        [Fact]
+        public void RangeConstructor_BothValuesAreOptional_WorksFine()
+        {
+            int? min = null;
+            int? max = null;
+            
+            var range = Range<int>.Create(min, max);
+            
+            Assert.False(range.IsMinHasValue);
+            Assert.False(range.IsMaxHasValue);
+        }
+
         [Theory]
         [InlineData(3, 1)]
         [InlineData(4, 1)]
@@ -86,17 +98,6 @@ namespace SimpleValueRange.Tests
         [InlineData(3, 2)]
         public void RangeConstructor_MinGreaterThanMax_ThrowsArgumentException(int min, int max)
         {
-            var constructorMethod = new Action(() => { Range<int>.Create(min, max); });
-
-            Assert.Throws<ArgumentException>(constructorMethod);
-        }
-        
-        [Fact]
-        public void RangeConstructor_BothValuesOptional_ThrowsArgumentException()
-        {
-            int? min = null;
-            int? max = null;
-            
             var constructorMethod = new Action(() => { Range<int>.Create(min, max); });
 
             Assert.Throws<ArgumentException>(constructorMethod);
@@ -130,9 +131,22 @@ namespace SimpleValueRange.Tests
         [InlineData(1, null, 1)]
         [InlineData(1, null, 2)]
         [InlineData(null, 4, 2)]
-        [InlineData(null, 4, 4)]
         public void RangeContains_ElementPassesOptionalBorder_ReturnsTrue(int? min, int? max, int element)
         {
+            var range = Range<int>.Create(min, max);
+
+            var actualResult = range.Contains(element);
+
+            Assert.True(actualResult);
+        }
+        
+        [Fact]
+        public void RangeContains_BothRangeValuesAreOptional_ReturnsTrue()
+        {
+            int? min = null;
+            int? max = null;
+            const int element = 10;
+            
             var range = Range<int>.Create(min, max);
 
             var actualResult = range.Contains(element);
