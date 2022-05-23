@@ -3,13 +3,36 @@ using LanguageExt;
 
 namespace SimpleValueRange
 {
+    /// <summary>
+    /// Represents range, that has minimal and maximal values
+    /// </summary>
+    /// <remarks>
+    /// Range is allowed to have one optional parameter
+    /// </remarks>
+    /// <typeparam name="T">Range values type</typeparam>
     public class Range<T> where T : IComparable<T>
     {
+        /// <summary>
+        /// Initializes a new instance of the Range class
+        /// </summary>
+        /// <param name="min">Minimal range value</param>
+        /// <param name="max">Maximal range value</param>
+        /// <typeparam name="T">Type of range values</typeparam>
+        /// <exception cref="ArgumentException">Throws when minimal value is greater than maximal or both passed values are optional</exception>
+        /// <returns></returns>
         public static Range<T> Create<T>(T min, T max) where T : IComparable<T>
         {
             return new Range<T>(min, max);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the Range class
+        /// </summary>
+        /// <param name="min">Minimal range value</param>
+        /// <param name="max">Maximal range value</param>
+        /// <typeparam name="T">Type of range values</typeparam>
+        /// <exception cref="ArgumentException">Throws when minimal value is greater than maximal or both passed values are optional</exception>
+        /// <returns></returns>
         public static Range<T> Create<T>(T? min, T? max) where T : struct, IComparable<T>
         {
             var minOption = min ?? Option<T>.None;
@@ -37,19 +60,41 @@ namespace SimpleValueRange
             _maxOption = max;
         }
 
+        /// <summary>
+        /// Determines whether the Range contains it's minimal value.
+        /// </summary>
         public bool MinHasValue => _minOption.IsSome;
+
+        /// <summary>
+        /// Determines whether the Range contains it's maximal value.
+        /// </summary>
         public bool MaxHasValue => _maxOption.IsSome;
 
+        /// <summary>
+        /// Gets minimal range value 
+        /// </summary>
+        /// <param name="result"> When this method returns, contains the minimal range value if it isn't optional. Otherwise, the default value for the type of the value parameter</param>
+        /// <returns>True if minimal value is not optional. Otherwise returns false</returns>
         public bool TryGetMinValue(out T result)
         {
             return TryGetValue(_minOption, out result);
         }
 
+        /// <summary>
+        /// Gets maximal range value 
+        /// </summary>
+        /// <param name="result"> When this method returns, contains the maximal range value if it isn't optional. Otherwise, the default value for the type of the value parameter</param>
+        /// <returns>True if maximal value is not optional. Otherwise returns false</returns>
         public bool TryGetMaxValue(out T result)
         {
             return TryGetValue(_maxOption, out result);
         }
 
+        /// <summary>
+        /// Determines whether the Range contains a specific value. Ignores optional values 
+        /// </summary>
+        /// <param name="element"></param>
+        /// <returns>True if the Range contains value. Otherwise returns false</returns>
         public bool Contains(T element)
         {
             return ElementGreaterOrEqualToMin(element) && ElementLessOrEqualToMax(element);
