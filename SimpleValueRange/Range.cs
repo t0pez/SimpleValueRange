@@ -42,39 +42,37 @@ namespace SimpleValueRange
         
         public bool TryGetMinValue(out T result)
         {
-            if (_minOption.IsNone)
-            {
-                result = default;
-                return false;
-            }
-
-            result = (T)_minOption.Case;
-            return true;
+            return TryGetValue(_minOption, out result);
         }
-        
+
         public bool TryGetMaxValue(out T result)
         {
-            if (_maxOption.IsNone)
+            return TryGetValue(_maxOption, out result);
+        }
+
+        public bool Contains(T element)
+        {
+            return ElementGreaterOrEqualToMin(element) && ElementLessOrEqualToMax(element);
+        }
+
+        private bool TryGetValue(Option<T> option, out T result)
+        {
+            if (option.IsNone)
             {
                 result = default;
                 return false;
             }
 
-            result = (T)_maxOption.Case;
+            result = (T)option.Case;
             return true;
         }
-            
-        public bool Contains(T element)
-        {
-            return ElementGreaterThatMin(element) && ElementLessThanMax(element);
-        }
 
-        private bool ElementLessThanMax(T element)
+        private bool ElementLessOrEqualToMax(T element)
         {
             return element.IsLessThan(_maxOption) || element.IsEqualTo(_maxOption);
         }
 
-        private bool ElementGreaterThatMin(T element)
+        private bool ElementGreaterOrEqualToMin(T element)
         {
             return element.IsGreaterThan(_minOption) || element.IsEqualTo(_minOption);
         }
