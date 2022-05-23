@@ -1,4 +1,6 @@
 ﻿using System;
+using SimpleValueRange.Tests.TestData;
+using SimpleValueRange.Tests.TestData.SimpleValueRange.Tests;
 using Xunit;
 
 namespace SimpleValueRange.Tests
@@ -38,7 +40,7 @@ namespace SimpleValueRange.Tests
 
                 return result;
             }
-            
+
             int? GetMaxValue(Range<int> range)
             {
                 int? result;
@@ -74,7 +76,7 @@ namespace SimpleValueRange.Tests
 
             Assert.Throws<ArgumentException>(constructorMethod);
         }
-        
+
         [Theory]
         [InlineData(1, 3, 2)]
         [InlineData(1, 4, 3)]
@@ -86,11 +88,25 @@ namespace SimpleValueRange.Tests
 
             Assert.True(actualResult);
         }
-        
+
         [Theory]
         [InlineData(1, 3, 1)]
         [InlineData(1, 4, 4)]
         public void RangeContains_ElementIsEqualMinOrMax_ReturnsTrue(int min, int max, int element)
+        {
+            var range = Range<int>.Create(min, max);
+
+            var actualResult = range.Contains(element);
+
+            Assert.True(actualResult);
+        }
+        
+        [Theory]
+        [InlineData(1, null, 1)]
+        [InlineData(1, null, 2)]
+        [InlineData(null, 4, 2)]
+        [InlineData(null, 4, 4)]
+        public void RangeContains_ElementPassesOptionalBorder_ReturnsTrue(int? min, int? max, int element)
         {
             var range = Range<int>.Create(min, max);
 
@@ -105,6 +121,56 @@ namespace SimpleValueRange.Tests
         public void RangeContains_ElementMoreThanMaxOrLessThanMin_ReturnsFalse(int min, int max, int element)
         {
             var range = Range<int>.Create(min, max);
+
+            var actualResult = range.Contains(element);
+
+            Assert.False(actualResult);
+        }
+        
+        [Theory]
+        [RangeConstructorWithoutOptionalParamsData]
+        public void RangeConstructor_ClassWithoutOptionalValues_WorksFine(ExampleClass min, ExampleClass max)
+        {
+            var range = Range<ExampleClass>.Create(min, max);
+
+            range.TryGetMinValue(out var minValue);
+            range.TryGetMaxValue(out var maxValue);
+
+            Assert.Equal(min, minValue);
+            Assert.Equal(max, maxValue);
+        }
+
+        [Theory]
+        [RangeConstructorWithOptionalParamsData]
+        public void RangeConstructor_ClassWithOptionalValues_WorksFine(ExampleClass min, ExampleClass max)
+        {
+            var range = Range<ExampleClass>.Create(min, max);
+
+            range.TryGetMinValue(out var minValue);
+            range.TryGetMaxValue(out var maxValue);
+
+            Assert.Equal(min, minValue);
+            Assert.Equal(max, maxValue);
+        }
+
+        [Theory]
+        [RangeContainsData]
+        public void RangeContains_ClassElementIsEqualMinOrMax_ReturnsTrue(
+            ExampleClass min, ExampleClass max, ExampleClass element)
+        {
+            var range = Range<ExampleClass>.Create(min, max);
+
+            var actualResult = range.Contains(element);
+
+            Assert.True(actualResult);
+        }
+
+        [Theory]
+        [RangeNotContainsData]
+        public void RangeContains_ClassElementMoreThanMaxOrLessThanMin_ReturnsFalse(
+            ExampleClass min, ExampleClass max, ExampleClass element)
+        {
+            var range = Range<ExampleClass>.Create(min, max);
 
             var actualResult = range.Contains(element);
 
