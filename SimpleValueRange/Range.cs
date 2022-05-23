@@ -7,7 +7,7 @@ namespace SimpleValueRange
     /// Represents range, that has minimal and maximal values
     /// </summary>
     /// <remarks>
-    /// Range is allowed to have one optional parameter
+    /// Range is allowed to have both values optional
     /// </remarks>
     /// <typeparam name="T">Range values type</typeparam>
     public class Range<T> where T : IComparable<T>
@@ -18,7 +18,7 @@ namespace SimpleValueRange
         /// <param name="min">Minimal range value</param>
         /// <param name="max">Maximal range value</param>
         /// <typeparam name="T">Type of range values</typeparam>
-        /// <exception cref="ArgumentException">Throws when minimal value is greater than maximal or both passed values are optional</exception>
+        /// <exception cref="ArgumentException">Throws when minimal value is greater than maximal</exception>
         /// <returns></returns>
         public static Range<T> Create<T>(T min, T max) where T : IComparable<T>
         {
@@ -31,7 +31,7 @@ namespace SimpleValueRange
         /// <param name="min">Minimal range value</param>
         /// <param name="max">Maximal range value</param>
         /// <typeparam name="T">Type of range values</typeparam>
-        /// <exception cref="ArgumentException">Throws when minimal value is greater than maximal or both passed values are optional</exception>
+        /// <exception cref="ArgumentException">Throws when minimal value is greater than maximal</exception>
         /// <returns></returns>
         public static Range<T> Create<T>(T? min, T? max) where T : struct, IComparable<T>
         {
@@ -46,11 +46,6 @@ namespace SimpleValueRange
 
         private Range(Option<T> min, Option<T> max)
         {
-            if (min.IsNone && max.IsNone)
-            {
-                throw new ArgumentException("Both values can't be optional");
-            }
-
             if (min.IsSome && max.IsSome && ((T)min).IsGreaterThan((T)max))
             {
                 throw new ArgumentException("Min can't be greater that max");
@@ -61,14 +56,14 @@ namespace SimpleValueRange
         }
 
         /// <summary>
-        /// Determines whether the Range contains it's minimal value.
+        /// Determines whether the Range contains it's minimal value
         /// </summary>
-        public bool MinHasValue => _minOption.IsSome;
+        public bool IsMinHasValue => _minOption.IsSome;
 
         /// <summary>
-        /// Determines whether the Range contains it's maximal value.
+        /// Determines whether the Range contains it's maximal value
         /// </summary>
-        public bool MaxHasValue => _maxOption.IsSome;
+        public bool IsMaxHasValue => _maxOption.IsSome;
 
         /// <summary>
         /// Gets minimal range value 
@@ -83,7 +78,9 @@ namespace SimpleValueRange
         /// <summary>
         /// Gets maximal range value 
         /// </summary>
-        /// <param name="result"> When this method returns, contains the maximal range value if it isn't optional. Otherwise, the default value for the type of the value parameter</param>
+        /// <param name="result">
+        /// When this method returns, contains the maximal range value if it isn't optional.
+        /// Otherwise, the default value for the type of the value parameter</param>
         /// <returns>True if maximal value is not optional. Otherwise returns false</returns>
         public bool TryGetMaxValue(out T result)
         {
@@ -93,6 +90,9 @@ namespace SimpleValueRange
         /// <summary>
         /// Determines whether the Range contains a specific value. Ignores optional values 
         /// </summary>
+        /// <remarks>
+        /// If both values are optional, returns true
+        /// </remarks>
         /// <param name="element"></param>
         /// <returns>True if the Range contains value. Otherwise returns false</returns>
         public bool Contains(T element)
